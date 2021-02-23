@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    volumes:
+      - ./:/go/src
+      - ../docker-laravel/infra/docker/python:/mnt
+      - ../docker-laravel/backend/public:/opt
+    ports:
+      - "8080:8080"

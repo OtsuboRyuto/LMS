@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--pythonスクリプトによる自動的に作成したwebページ/-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>オンライン試験</title><script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="garlic.js"></script>
+<script src="online_test.js"></script>
+</head>
+<body>
+<form>
+<ol id = "form_list">
+<br>
+あどみん<br>
+解答欄に直接入力してください。<br><li><input type="text" maxlength = 5 name = "app1" id = "apply1" ></li>
+</ol><input type="button" onclick = "return CHECK_FORM()" value = "提出">
+</form><script>var FormElement = document.getElementById("form_list");
+const number_of_ques = FormElement.childElementCount;
+</script>
+</body>
+</html>

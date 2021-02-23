@@ -1,0 +1,227 @@
+<!--
+    専用のマイページを生成
+                        /-->
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <!--
+    <link rel="stylesheet" type="text/css" href="./css/loading.css">
+        <div id = "load">
+   <div class="loader">Loading...</div>
+   /-->
+</div>
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script><!-- Jqueryをinclude /-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    　<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+    <script src="./js/ButtonEvent.js"></script>
+    <script src ="./js/auth.js"></script>
+   
+    <title>
+        MyPage
+    </title>
+</head>
+<body style="background-image : url(./img/graWhite2.gif);overflow: hidden;display:none" id="target" class="container-fluid">
+   <!-- 
+    <div id = "load">
+   <div class="loader">Loading...</div> ローディング用のパラメーター
+</div> /-->
+    <div>
+        <!--
+    あなたの学籍番号とイニシャルを入力してください。<br>
+    例 神奈川太郎 → 20001000KT <br>
+    また、ミドルネームがある方はすべての名前の先頭の文字を入れてください。<br>
+    例 Thomas Alva Edison → 20001000TAE<br>
+    <form name="myform" action="./online_test_2.html" onsubmit="return check_form();">
+        <input type="text" name="student_number">
+        <input name="btn" type="submit">
+    </form>
+
+</!-->
+        <div style="position:fixed;" class="col-md-12 d-none d-sm-block">
+            <!-- ここに機能群のボタンを入れる-->
+            <div class="container col-md-3 row ">
+                <div class="col-md-8" style="background-color:rgba(130,130,130,0.2);margin-top:15%;padding-bottom:15%;border-radius:20px;">
+                    <div class="col-md-12" style="text-align: center"><img src="./img/logo.gif"> </div>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id = "toTop">トップページ</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id = "toLogin">ログイン画面</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id="toGroup">BBS Laravel</button><br> <!-- グループチャット -->
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id="toGobbs">BBS Golang</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id="toAdmin">アドミン</button><br> <!-- アドミン用ページへ  -->
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id="toTest">テストの受験</button><br><!-- テストのページ   -->
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id = "toDocument">授業資料</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id = "toLogout">ログアウト</button><br>
+                    <!--ページのリロードなしで授業資料を見れる  -->
+                </div>
+            </div>
+        </div>
+        <div id="whole_contents" class="container col-md-8 offset-md-2 text-left  border-start border-end border-secondary" style="height:100vh; background-color:transparent">
+            <h2 id="heading" class="text-secondary"></h2>
+            <div id="calendar" class="col-6" style="float:left;"></div>
+            <div id="from_teacher" class="col-6" style="float:right;"></div>
+            <canvas id="mychart" style="float:none;" class="h-50"></canvas>
+            <h3 id="hist"></h3>
+        </div>
+    </div>
+</body>
+<script>
+
+
+
+var from_teacher = "<h4 class= \"text-secondary\">教師からのお知らせ</h4><table style =\"width:100%;background-color:rgba(75,250,220,0.4);\" class = \"table table-striped\">";
+$.ajax({
+    url: "http://192.168.0.80:25565/golang/getTeacherComment",
+    dataType: "json",
+    type: "post",
+    async: false,
+}).done(function(state) {
+    // alert(state["Contents"])
+    if (state == null) {
+        from_teacher = "データが存在しません。";
+        return;
+    }
+    for (var i = 0; i < 7; i++) {
+        //alert(state["Contents"])
+        if (i < state.length) {
+            from_teacher += "<tr><td>" + state[i]["Contents"] + "</td></tr>";
+        } else {
+            from_teacher += "<tr><td style = \"height:2.55em;\">" + "</td></tr>";
+        }
+    }
+    from_teacher += "</table>"
+}).fail(function() {
+    alert("エラー1");
+});
+
+document.querySelector('#from_teacher').innerHTML = from_teacher
+
+const weeks = ['日', '月', '火', '水', '木', '金', '土'];
+const date = new Date();
+const year = date.getFullYear();
+const month = date.getMonth() + 1;
+const startDate = new Date(year, month - 1, 1);
+const endDate = new Date(year, month, 0);
+const endDayCount = endDate.getDate();
+const lastMonthEndDate = new Date(year, month - 1, 0);
+const lastMonthendDayCount = lastMonthEndDate.getDate();
+const startDay = startDate.getDay();
+var day = 1;
+var calendarHTML = '';
+
+calendarHTML += '<h4 class = \"text-secondary\">' + year + '/' + month + '</h4>';
+calendarHTML += '<table class = \"table table-bordered\">';
+
+// 曜日の行を作成
+for (var i = 0; i < weeks.length; i++) {
+    if (i == 0) {
+        calendarHTML += '<td class = \"text-danger\">' + weeks[i] + '</td>'
+    } else if (i == 6) {
+        calendarHTML += '<td class = \"text-info\"">' + weeks[i] + '</td>'
+    } else {
+        calendarHTML += '<td class = \"text-dark\"">' + weeks[i] + '</td>'
+    }
+}
+
+for (var w = 0; w < 6; w++) {
+    calendarHTML += '<tr>'
+
+    for (var d = 0; d < 7; d++) {
+        if (w == 0 && d < startDay) {
+            var num = lastMonthendDayCount - startDay + d + 1
+            calendarHTML += '<td class=\"text-black-50\">' + num + '</td>'
+        } else if (day > endDayCount) {
+            var num = day - endDayCount
+            calendarHTML += '<td class=\"text-black-50\">' + num + '</td>'
+            day++
+        } else {
+            if (d == 0) {
+                calendarHTML += '<td class = \"text-danger\">' + day + '</td>'
+            } else if (d == 6) {
+                calendarHTML += '<td class = \"text-info\">' + day + '</td>'
+            } else {
+                calendarHTML += '<td class = \"text-dark\">' + day + '</td>'
+                day++
+            }
+        }
+    }
+    calendarHTML += '</tr>'
+}
+calendarHTML += '</table>'
+
+document.querySelector('#calendar').innerHTML = calendarHTML
+
+var heading = document.getElementById("heading");
+heading.innerHTML = id + "さんのマイページ";
+//グラフ描画用のデータを取得
+var get_label = [];
+var get_data = [];
+$.ajax({
+    url: "http://192.168.0.80:25565/golang/getHistories",
+    dataType: "json",
+    type: "post",
+    data: { "id": id },
+    async: false,
+}).done(function(state) {
+    var i;
+    if (state == null) {
+        get_label[1] = "データが存在しません。";
+        get_data.push("undefined");
+        return;
+    }
+    for (i = 0; i < state.length && i < 12; i++) { //あまり多すぎると見えなくなるため12までにしている
+        get_label.push(state[i]["Test_title"]);
+        get_data.push(state[i]["Point"]);
+    }
+}).fail(function() {
+    alert("エラー1");
+});
+//var heading = document.getElementById("hist");
+//heading.innerHTML = get_data;
+window.onload = chart();
+
+function chart(){
+var ctx = document.getElementById("mychart");
+var myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: get_label,
+        datasets: [{
+            label: "テストの得点",
+            data: get_data,
+            borderColor: "rgba(30,192,192,0.7)",
+            backgroundColor: "rgba(75,194,194,0.4)"
+        }, ],
+    },
+    options: {
+        animation:{
+            duration: 2000,
+            easing: 'linear'
+        },
+        title: {
+            display: true,
+            text: id + 'さんのテスト履歴'
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    suggestedMax: 100,
+                    suggestedMin: 0,
+                    stepSize: 10,
+                    beginAtZero: true,
+                    callback: function(value, index, values) {
+                        return value + '点'
+                    }
+                }
+            }]
+        },
+    }
+});
+}
+//______________________
+</script>
+<script src ="./js/ButtonEvent.js"></script>
+</html>

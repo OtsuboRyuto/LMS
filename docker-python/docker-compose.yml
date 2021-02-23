@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  python3:
+    ports:
+      - 8000:8000
+    restart: always
+    build: .
+    container_name: 'python'
+    tty: true
+    volumes:
+      - ./cgi-bin:/home/python/cgi-bin
+      - ../docker-laravel/backend/public:/mnt
+      - ../docker-laravel/infra/docker/python:/opt

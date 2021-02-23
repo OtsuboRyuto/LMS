@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--pythonスクリプトによる自動的に作成したwebページ/-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>オンライン試験</title><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="./js/garlic.js"></script>
+<script src="./js/online_test.js"></script>
+<style>header{width: 100%; padding: 15px 0; margin: 0 auto; text-align: center;}</style></head>
+<header>このシステムはフルスクリーン限定です。また、スクリーンショットなどの不正行為は禁止されています<br> <button id="button1">ページを表示</button></header><body style = "background-image : url(./img/graPink.gif);" id = "target"><form><h3 style="text-align: center">テスト</h3><br><h4 style = "text-align: right">0210</h2><form>
+<div id = "test_area" style = "visibility:visible;"><ol id = "form_list" data-persist = "garlic">
+テストです<br>
+<br>
+解答欄に直接入力してください。<br><li><input type="text" maxlength = 1 name = "app1" id = "apply1"  class = "FORM"></li><br>
+</ol><input type="button" onclick = "return CHECK_FORM()" value = "提出">
+</div><script src="./js/expend.js"></script><script>const number_of_ques = $('input').length - 1;
+const dir =  "../../mnt/data/テスト_0210/data;"
+setInterval(INVISIBLE_IF_FULLSCREEN(), 100);</script>
+</body>
+</html>

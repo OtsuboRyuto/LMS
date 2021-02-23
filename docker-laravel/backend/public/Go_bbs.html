@@ -1,0 +1,146 @@
+<!--
+    専用のマイページを生成
+                        /-->
+<!DOCTYPE html>
+<html lang="ja">
+<!--
+    pythonスクリプトによる自動的にwebページを生成する/-->
+
+<head>
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script><!-- Jqueryをinclude /-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="./js/auth.js"></script>
+    <title>
+        bbs written bt Golang
+    </title>
+    <script>
+    var group;
+        function DEF() {
+        return $.ajax({
+            url: "http://192.168.0.80:25565/golang/dec?" + "hash="+ hash + "&id=" + id + "&pass=" + pass,
+            dataType: "json",
+            type: "GET",
+            async: false,
+        })
+    }
+    DEF().done(function(data) {
+            if(data == 0){
+                alert("エラー");
+               window.location.href = "index.html";
+            }
+           group = data["Your_group"];
+           //hash = data["Hash"];
+           //alert(data)
+           //alert(group + "  " + hash);
+        }).fail(function() {
+            alert("エラー");
+        });
+    document.addEventListener('DOMContentLoaded', (event) => {
+        DEF();
+        getData();
+    });
+    //var id = GET_ID();
+    </script>
+</head>
+
+<body style="background-image : url(./img/graWhite2.gif);overflow: hidden;display:none" id="target" class="container-fluid">
+    <div>
+        <!--
+    あなたの学籍番号とイニシャルを入力してください。<br>
+    例 神奈川太郎 → 20001000KT <br>
+    また、ミドルネームがある方はすべての名前の先頭の文字を入れてください。<br>
+    例 Thomas Alva Edison → 20001000TAE<br>
+    <form name="myform" action="./online_test_2.html" onsubmit="return check_form();">
+        <input type="text" name="student_number">
+        <input name="btn" type="submit">
+    </form>
+
+</!-->
+        <div style="position:fixed;" class="col-md-3 d-none d-sm-block">
+            <!-- ここに機能群のボタンを入れる-->
+            <div class="container col-md-12 row">
+                <div class="col-md-8" style="background-color:rgba(130,130,130,0.2);margin-top:15%;padding-bottom:15%;border-radius:20px;">
+                    <div class="col-md-12" style="text-align: center" class = "row"><img src="./img/logo.gif"> </div>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" id = "toTop" style="margin:1%">トップページ</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" id = "toLogin" style="margin:1%">ログイン画面</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" id = "toMypage" style="margin:1%">マイページ</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id="toGroup">BBS Laravel</button><br> <!-- グループチャット -->
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%">オンラインテスト</button><br><!-- テストのページ   -->
+                    <button type="button" class="btn btn-outline-secondary col-md-12" style="margin:1%" id = "toDocument">授業資料</button><br>
+                    <button type="button" class="btn btn-outline-secondary col-md-12" id = "toAdmin" style="margin:1%">アドミン</button><br> <!-- アドミン用ページへ  -->
+                    <!--ページのリロードなしで授業資料を見れる  -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style = "position:fixed" class="container col-md-8 offset-md-2 text-left row align-items-start  border-start border-end border-secondary" style = "height:100vh; "></div>
+        <div id="whole_contents" class="container col-md-8 offset-md-2  border-start border-end border-secondary" style = "height:100vh;overflow:auto; ">
+            <h1>あなたのIDは <span id="insert1"></span> です</h1>
+            <p>Group <span id="insert2"></span></p>
+            <div class="form-group">
+                <form method="post" name="form">
+                    <textarea name="content" id="content" cols="100" rows="4" maxlength="128" class="col-9" style="resize:none;float:left;height:6em;"></textarea>
+                    <button type="button" class="btn btn-secondary col-3" id="submit" style="float:right; height:6em;">投稿</button><br>
+                </form>
+            </div>
+            <div style = "clear:left;padding-top:2em;">
+                <div id="contents"></div>
+            </div>
+        </div>
+</body>
+<script>
+
+//$("#insert1").apend(id);
+//$("#insert2").prepend(group);
+
+var a = document.getElementById("insert1");
+a.innerHTML = id;
+var a = document.getElementById("insert2");
+a.innerHTML = group;
+var i = 0;
+
+
+function getData() {
+    $.ajax({
+        url: "http://192.168.0.80:25565/golang/get?above=" + i + "&group=" + group,
+        dataType: "json",
+        type: "get",
+        async: true,
+    }).done(function(state) {
+        for (; i < state.length; i++) {
+            if (state[i]["Id"] == id) { //自身のidと取得したIDが一致するケースに枠の色を変更する
+                $("#contents").prepend("<div id = \"content\" class = \"border border-success rounded bg-success bg-gradient text-light \">" + state[i]["Id"] + "さんの投稿<br>" + state[i]["Contents"] + "</div>");
+                $("#contents").prepend("<div style =\"margin:1%;\"></div>");
+            } else {
+                $("#contents").prepend("<div id = \"content\" class = \"border border-secondary bg-gradient rounded bg-secondary text-light\">" + state[i]["Id"] + "さんの投稿<br>" + state[i]["Contents"] + "</div>");
+                $("#contents").prepend("<div style =\"margin:1%;\"></div>");
+            }
+        }
+    }).fail(function() {
+        alert("送信失敗");
+    });
+}
+setInterval("getData()", 2000);
+
+document.getElementById("submit").onclick = function(){
+    var content = document.form.content.value;
+    $.ajax({
+                    url: $.ajax({
+                    url: "http://192.168.0.80:25565/golang/add",
+                    type: "post",
+                    data:{"id":id, "group_id":group, "contents":content},
+                    async:true
+                }).done(function(state) {
+                }).fail(function(){
+                    alert("送信失敗");
+                })
+            })
+    document.form.content.value = "";
+        }
+</script>
+<script src = "./js/ButtonEvent.js"></script>
+</html>

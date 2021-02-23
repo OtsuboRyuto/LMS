@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!--
+    pythonスクリプトによる自動的にwebページを生成する/-->
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script></script><!-- Jqueryをinclude /-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        Login
+            </title>
+
+</head>
+
+<body style="background-image : url(./img/graPink.gif);background-size : 100%" id="target">
+    <!--
+    あなたの学籍番号とイニシャルを入力してください。<br>
+    例 神奈川太郎 → 20001000KT <br>
+    また、ミドルネームがある方はすべての名前の先頭の文字を入れてください。<br>
+    例 Thomas Alva Edison → 20001000TAE<br>
+    <form name="myform" action="./online_test_2.html" onsubmit="return check_form();">
+        <input type="text" name="student_number">
+        <input name="btn" type="submit">
+    </form>
+
+</!-->
+    <div class="container-fluid col text-center" style="margin-top: 10%">
+        <div class="h-25 my-box float-left">
+            <img src="./img/logo.gif">
+            <p class="h2" style="height: 25%" ;>ようこそ、TGL学習支援システムへ</p>
+            <br>
+            <button class="row btn btn-primary btn-lg btn-block rounded-pill col-md-3 col-md-offset-3" onclick="return REGISTRATION();">USER登録</button><br>
+            <button class="row btn btn-light btn-lg btn-block border border-info rounded-pill col-md-3 col-md-offset-3 text-center" style="margin-top : 1%;" onclick="return LOG_IN();">ログイン</button>
+            <br>
+        </div>
+    </div>
+    <div id="admin" style="position: absolute; bottom : 0; opacity: 0;">
+        管理者用のページへ
+        <form name="myform2" action="./online_test_admin.html">
+            <input type="text" name="passward">
+            <input name="btn" type="button" value="パスワードを送信" onclick="return check_form2();">
+        </form>
+    </div>
+    <script> 
+    $("#admin").click(function() {
+        var i = document.getElementById("admin");
+        i.style.opacity = 1;
+    });
+    function LOG_IN() {
+        const id = window.prompt("学籍番号を入力してください");
+        if (id == null)
+            return;
+        const passward = window.prompt("パスワードを入力してください。");
+        if (passward == null)
+            return;
+
+        $.ajax({
+            //url: "./php/log_in.php", php版
+            url:"http://192.168.0.80:25565/golang/log_in",
+            dataType: "json",
+            type: "post",
+            data: {"id": id, "passward": passward },
+            async: false,
+        }).done(function(data) {
+        if (data["Flag"] == 1)
+                            //alert("ログイン成功");
+                $.getJSON("https://api.ipify.org/?format=json", function(connection){//クライアントのipを取得できるapiに接続し、データを取得。
+                    $.ajax({
+                    url: "http://192.168.0.80:25565/golang/auth",//リバースプロキシのURL
+                    dataType: "json",
+                    type: "post",
+                    data:{"id": id, "ip": connection.ip },
+                    async: false,
+                }).done(function(state) {
+                //alert(data["Pass"]);
+                //user のipを使うため削除するかもしれないが、いろいろなことに使えるため今のところは入れている
+                    alert("ログイン成功");
+                    let date = new Date(Date.now() + 86400e3);//期限は1日
+					date = date.toUTCString();
+                    document.cookie = "hash=" + state + "&" + "pass=" + data["Pass"] +";" + "expires=" + data;
+                    window.location.href = "mypage.html?id=" + id;
+                }).fail(function(){
+                    alert("ログイン失敗");
+                });
+                });
+                 else if (data["Flag"] == 0)
+                alert("パスワードが間違っています。");
+                 else {//返り値が1(trueの時の処理)
+                    alert("IDに重複もしくは、IDが間違っています。何度もエラーが起こる場合は管理者に連絡してください。");
+           } 
+        }).fail(function() {
+            alert("不明なエラーが発生しました。");
+        });
+
+
+
+    }
+
+    function REGISTRATION() {
+        const i = window.confirm("ユーザー登録を行います。よろしいですか？");
+        if (i == true) {
+            REGISTRATION_START();
+        } else {
+            return false;
+        }
+    }
+
+    function REGISTRATION_START() {
+        //ユーザー登録用の関数。入力を行い、それをまとめてjsonにし、ajaxでpythonに送信を行い、データベースに登録する。
+        var student_number = window.prompt("学籍番号を入力してください。");
+        if (student_number == null)
+            return;
+        var username = window.prompt("苗字(initial name)を入力してください。");
+        if (username.length > 8) {
+            alert("文字数制限8文字を超えているため、元のページに戻ります。");
+            return false;
+        }
+        var passward = window.prompt("パスワードを入力してください。文字制限8文字。");
+        if (passward.length > 8) {
+            alert("文字数制限8文字を超えているため、元のページに戻ります。");
+            return false;
+        }
+        if (passward.length == 0){
+        	alert("パスワードを入力してください");
+        	return;
+        }
+        var question = window.prompt("秘密の質問を入力してください。");
+        if (question.length > 32) {
+            alert("文字数制限32文字を超えているため、元のページに戻ります。");
+            return false;
+        }
+        var answer = window.prompt("質問の答えを入力してください。解答はハッシュ値として登録されます。");
+        if (username.length > 32) {
+            alert("文字数制限32文字を超えているため、元のページに戻ります。");
+            return false;
+        }
+        var i = window.confirm("学籍番号 " + student_number + "\n 苗字 " + username + "\n パスワード " + passward + "\n 秘密の質問 \n" + question + "\n 質問の解答 " + answer + "\n でよろしいでしょうか？");
+        if (i == false)
+            return;
+
+        var data = "";
+        $.ajax({
+            //url: "./php/registration.php",php版
+            url:"http://192.168.0.80:25565/golang/registration",
+            dataType: "json",
+            type: "post",
+            data: { "id": student_number, "username": username, "passward": passward, "question": question, "answer": answer },
+            async: false,
+        }).done(function(data) {
+            if (data == 1)
+                alert("データは登録されました。");
+            else
+                alert("既に重複しているIDが見つかりました。登録した覚えがない場合管理者に連絡してください。");
+        }).fail(function(data) {
+            alert("エラー");
+        });
+
+    }
+
+    function check_form2() {
+        const passward = document.forms[0].elements[0].value;
+        const result = window.confirm("管理者サイトに飛びますがよろしいですか？\nパスワードが間違っている場合元のページに戻されます。");
+        if (result) {
+            $.ajax({
+                url: "http://192.168.0.80/cgi-bin/cgi-bin/passward.py",
+                dataType: "text",
+                type: "POST",
+                data: passward,
+                async: false,
+            }).done(function(data) {
+                if (Number(data) == 1) {
+                    //Trueなので何もしない
+                    alert("パスワード一致。");
+                    window.location.href = "online_test_admin.html?passward=" + passward + '&';
+                } else {
+                    alert("パスワードが間違っています。")
+                    window.location.href = "index.html";
+                }
+            }).fail(function() {
+                alert("エラー");
+            });
+        } else {
+            //「false」の処理
+            return false;
+        }
+
+    }
+
+    function check_form() {
+        var i = document.forms[0].elements[0].value;
+        var result = window.confirm(i + 'さんでよろしいでしょうか？');
+        if (result) {
+            //「true」の処理
+            QUERY_START();
+            return tag;
+        } else {
+            //「false」の処理
+            return false;
+        }
+    }
+    </script>
+</body>
+
+</html>

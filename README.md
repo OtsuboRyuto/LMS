@@ -9,4 +9,4 @@ Backend ---+----> LMS/docker-golang -> test.go<br>
            
 Frontend -------> LMS/docker-laravel/backend/public
 
-infra ----------> LMS/docker-laravel/infra
+infra ------------> LMS/docker-laravel/infra

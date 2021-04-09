@@ -5,7 +5,7 @@ Please, Visit this URL which is a description of my systems and me.<br>
 ソースコードの格納場所/SourceCode store locations
 
 Backend ---+----> LMS/docker-golang -> test.go<br>
-           |----> LMS/docker-python/cgi-bin
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|----> LMS/docker-python/cgi-bin
            
 Frontend -------> LMS/docker-laravel/backend/public
 
